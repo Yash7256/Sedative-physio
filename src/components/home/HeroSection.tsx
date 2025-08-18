@@ -42,7 +42,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+    <section className="relative min-h-[calc(100vh-64px)] sm:min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-x-hidden">
       {/* Animated Background */}
       <div className="absolute inset-0">
         <motion.div
@@ -106,8 +106,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center pt-16 sm:pt-20 lg:pt-24">
-        <div className="grid lg:grid-cols-2 gap-12 items-center w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center pt-12 sm:pt-20 lg:pt-24">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center w-full">
           {/* Left Column - Content */}
           <div className="text-center lg:text-left">
             <motion.div
@@ -121,7 +121,7 @@ export function HeroSection() {
             </motion.div>
             
             <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white"
+              className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
@@ -130,7 +130,7 @@ export function HeroSection() {
             </motion.h1>
             
             <motion.p 
-              className="mt-6 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto lg:mx-0"
+              className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
@@ -141,7 +141,7 @@ export function HeroSection() {
             {/* Search Bar */}
             <motion.form 
               onSubmit={handleSearch}
-              className="mt-8 max-w-xl mx-auto lg:mx-0"
+              className="mt-6 sm:mt-8 w-full max-w-xl mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
@@ -154,7 +154,7 @@ export function HeroSection() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-12 pr-4 py-4 border-0 bg-white/5 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
+                  className="block w-full pl-12 pr-4 py-3 sm:py-4 text-sm sm:text-base border-0 bg-white/5 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
                   placeholder="Search courses, resources..."
                   aria-label="Search courses and resources"
                 />
@@ -169,36 +169,36 @@ export function HeroSection() {
 
             {/* Features List */}
             <motion.ul 
-              className="mt-8 grid grid-cols-2 gap-3 text-left max-w-md mx-auto lg:mx-0"
+              className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-3 text-left max-w-md mx-auto lg:mx-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
               {features.map((feature, index) => (
                 <li key={index} className="flex items-center">
-                  <Check className="h-5 w-5 text-green-400 mr-2 flex-shrink-0" aria-hidden="true" />
-                  <span className="text-gray-300 text-sm sm:text-base">{feature}</span>
+                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 mr-2 flex-shrink-0 mt-0.5" aria-hidden="true" />
+                  <span className="text-gray-300 text-xs sm:text-sm md:text-base">{feature}</span>
                 </li>
               ))}
             </motion.ul>
 
             {/* CTA Buttons */}
             <motion.div 
-              className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+              className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
             >
               <Link
                 to="/courses"
-                className="inline-flex items-center justify-center px-6 py-4 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900"
+                className="inline-flex items-center justify-center px-5 py-3 sm:px-6 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900"
               >
                 Explore Courses
                 <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
               </Link>
               <Link
                 to="/free-trial"
-                className="inline-flex items-center justify-center px-6 py-4 border border-gray-700 text-base font-medium rounded-xl text-white bg-transparent hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900"
+                className="inline-flex items-center justify-center px-5 py-3 sm:px-6 sm:py-4 border border-gray-700 text-sm sm:text-base font-medium rounded-xl text-white bg-transparent hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900"
               >
                 Start Free Trial
               </Link>
@@ -234,12 +234,12 @@ export function HeroSection() {
         ref={statsRef}
         className={`relative ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                 initial={{ opacity: 0, y: 20 }}
                 animate={statsInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ 
@@ -258,8 +258,8 @@ export function HeroSection() {
                     <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
                   </div>
                   <div className="ml-4">
-                    <p className="text-xs sm:text-sm font-medium text-gray-400">{stat.label}</p>
-                    <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stat.value}</p>
+                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-gray-400">{stat.label}</p>
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-white mt-0.5 sm:mt-1">{stat.value}</p>
                   </div>
                 </div>
               </motion.div>
