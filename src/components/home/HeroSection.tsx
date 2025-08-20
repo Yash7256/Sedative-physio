@@ -1,13 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Play, ArrowRight, Users, BookOpen, Award, Check } from 'lucide-react';
+import { Search, ArrowRight, Users, BookOpen, Award, Check, Play } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  
   const { ref: statsRef, inView: statsInView } = useInView({
     threshold: 0.3,
     triggerOnce: true,
@@ -26,78 +28,117 @@ export function HeroSection() {
     'Certification Ready'
   ];
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Memoized handlers for performance
+  const handleSearch = useCallback(async (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    if (!searchQuery.trim() || isSearching) return;
+    
+    setIsSearching(true);
+    // Add slight delay for better UX
+    setTimeout(() => {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+      setIsSearching(false);
+    }, 300);
+  }, [searchQuery, navigate, isSearching]);
+
+  const handleInputChange = useCallback((e) => {
+    setSearchQuery(e.target.value);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      const scrolled = window.scrollY > 50;
+      if (scrolled !== isScrolled) {
+        setIsScrolled(scrolled);
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isScrolled]);
+
+  // Animation variants for better organization
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1,
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: "easeOut" }
+    }
+  };
 
   return (
-    <section className="relative min-h-[calc(100vh-64px)] sm:min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-x-hidden">
-      {/* Animated Background */}
+    <section className="relative min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 overflow-hidden">
+      {/* Enhanced Animated Background */}
       <div className="absolute inset-0">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
           className="absolute inset-0 bg-[url('/src/assets/hero-pattern.svg')] bg-cover bg-center opacity-10"
           aria-hidden="true"
         />
+        
+        {/* Improved gradient animation */}
         <motion.div
           animate={{
-            backgroundPosition: ['0% 0%', '100% 100%'],
+            background: [
+              'linear-gradient(45deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 50%, transparent 100%)',
+              'linear-gradient(225deg, rgba(147, 51, 234, 0.1) 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%)',
+              'linear-gradient(45deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.05) 50%, transparent 100%)',
+            ],
           }}
           transition={{
-            duration: 20,
+            duration: 8,
             repeat: Infinity,
-            repeatType: 'reverse',
+            ease: "easeInOut",
           }}
-          className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-transparent"
-          style={{
-            backgroundSize: '200% 200%',
-          }}
+          className="absolute inset-0"
           aria-hidden="true"
         />
-        {/* Floating Elements - Optimized */}
+
+        {/* Optimized floating elements with better performance */}
         <div className="absolute inset-0 overflow-hidden">
-          {[...Array(8)].map((_, i) => {
-            const size = Math.random() * 4 + 2;
-            const delay = Math.random() * 5;
-            const duration = 15 + Math.random() * 20;
-            const x = 10 + Math.random() * 80;
-            const y = 10 + Math.random() * 80;
+          {[...Array(6)].map((_, i) => {
+            const size = Math.random() * 6 + 3;
+            const delay = Math.random() * 3;
+            const duration = 12 + Math.random() * 8;
+            const x = 15 + Math.random() * 70;
+            const y = 15 + Math.random() * 70;
             
             return (
               <motion.div
                 key={i}
-                className="absolute rounded-full bg-gradient-to-r from-blue-400/30 to-purple-400/30"
+                className="absolute rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 backdrop-blur-sm"
                 animate={{
-                  x: [0, 100, 0],
-                  y: [0, -100, 0],
-                  opacity: [0, 0.8, 0],
-                  scale: [1, 1.5, 1],
+                  x: [0, Math.random() * 200 - 100, 0],
+                  y: [0, Math.random() * -150, 0],
+                  opacity: [0, 0.6, 0],
+                  scale: [1, 1.2, 1],
                 }}
                 transition={{
                   duration: duration,
                   repeat: Infinity,
                   delay: delay,
-                  ease: 'easeInOut',
+                  ease: "easeInOut",
                 }}
                 style={{
                   width: `${size}px`,
                   height: `${size}px`,
                   left: `${x}%`,
                   top: `${y}%`,
-                  filter: 'blur(1px)',
+                  filter: 'blur(0.5px)',
                 }}
                 aria-hidden="true"
               />
@@ -106,160 +147,174 @@ export function HeroSection() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center pt-12 sm:pt-20 lg:pt-24">
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center w-full">
-          {/* Left Column - Content */}
-          <div className="text-center lg:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-900/30 text-blue-300 mb-6 border border-blue-800/50"
-            >
-              <span className="h-2 w-2 rounded-full bg-blue-400 mr-2 animate-pulse"></span>
-              Join 10,000+ healthcare professionals
-            </motion.div>
-            
-            <motion.h1 
-              className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              Master <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">Physiotherapy</span> with Expert Guidance
-            </motion.h1>
-            
-            <motion.p 
-              className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              Transform your career with our comprehensive physiotherapy courses, designed by industry experts and trusted by healthcare professionals worldwide.
-            </motion.p>
-
-            {/* Search Bar */}
-            <motion.form 
-              onSubmit={handleSearch}
-              className="mt-6 sm:mt-8 w-full max-w-xl mx-auto lg:mx-0"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-12 pr-4 py-3 sm:py-4 text-sm sm:text-base border-0 bg-white/5 text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
-                  placeholder="Search courses, resources..."
-                  aria-label="Search courses and resources"
-                />
-                <button
-                  type="submit"
-                  className="absolute inset-y-1 right-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200"
-                >
-                  Search
-                </button>
-              </div>
-            </motion.form>
-
-            {/* Features List */}
-            <motion.ul 
-              className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-3 text-left max-w-md mx-auto lg:mx-0"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              {features.map((feature, index) => (
-                <li key={index} className="flex items-center">
-                  <Check className="h-4 w-4 sm:h-5 sm:w-5 text-green-400 mr-2 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                  <span className="text-gray-300 text-xs sm:text-sm md:text-base">{feature}</span>
-                </li>
-              ))}
-            </motion.ul>
-
-            {/* CTA Buttons */}
-            <motion.div 
-              className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Link
-                to="/courses"
-                className="inline-flex items-center justify-center px-5 py-3 sm:px-6 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900"
-              >
-                Explore Courses
-                <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
-              </Link>
-              <Link
-                to="/free-trial"
-                className="inline-flex items-center justify-center px-5 py-3 sm:px-6 sm:py-4 border border-gray-700 text-sm sm:text-base font-medium rounded-xl text-white bg-transparent hover:bg-white/5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900"
-              >
-                Start Free Trial
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Image/Illustration */}
-          <motion.div 
-            className="relative mt-12 lg:mt-0"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center pt-16 sm:pt-20 lg:pt-24">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="w-full max-w-4xl mx-auto text-center"
+        >
+          <motion.div
+            variants={itemVariants}
+            className="inline-flex items-center px-4 py-2 rounded-full text-xs xs:text-sm font-medium bg-blue-900/30 text-blue-300 mb-4 sm:mb-6 border border-blue-800/50 hover:bg-blue-900/40 transition-all duration-300"
           >
-            <div className="relative mx-auto rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-gradient-to-br from-blue-900/30 to-purple-900/30 p-1">
-              <div className="aspect-w-16 aspect-h-9 w-full h-96 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-xl overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                    <Play className="h-10 w-10 text-white ml-1" />
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Floating Elements */}
-            <div className="absolute -top-6 -right-6 w-32 h-32 bg-blue-500/20 rounded-full filter blur-3xl -z-10"></div>
-            <div className="absolute -bottom-6 -left-6 w-40 h-40 bg-purple-500/20 rounded-full filter blur-3xl -z-10"></div>
+            <span className="h-2 w-2 rounded-full bg-blue-400 mr-2 animate-pulse"></span>
+            Join 10,000+ healthcare professionals
           </motion.div>
-        </div>
+          
+          <motion.h1 
+            variants={itemVariants}
+            className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-tight px-2 sm:px-0"
+          >
+            Master{' '}
+            <motion.span 
+              className="bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 bg-clip-text text-transparent"
+              animate={{
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              style={{ backgroundSize: '200% auto' }}
+            >
+              Physiotherapy
+            </motion.span>{' '}
+            with Expert Guidance
+          </motion.h1>
+          
+          <motion.p 
+            variants={itemVariants}
+            className="mt-4 sm:mt-6 text-sm xs:text-base sm:text-lg lg:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-2 sm:px-0"
+          >
+            Transform your career with our comprehensive physiotherapy courses, designed by industry experts and trusted by healthcare professionals worldwide.
+          </motion.p>
+
+          {/* Enhanced Search Bar */}
+          <motion.form 
+            variants={itemVariants}
+            onSubmit={handleSearch}
+            className="mt-6 sm:mt-8 w-full max-w-2xl mx-auto px-2 sm:px-0"
+          >
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className={`h-5 w-5 transition-colors duration-200 ${
+                  searchQuery ? 'text-blue-400' : 'text-gray-400'
+                }`} aria-hidden="true" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleInputChange}
+                className="block w-full pl-12 pr-20 py-3 sm:py-4 text-sm sm:text-base border-0 bg-white/5 backdrop-blur-sm text-white placeholder-gray-400 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:bg-white/10 transition-all duration-200 h-12 sm:h-auto group-hover:bg-white/10"
+                placeholder="Search courses, specializations, resources..."
+                aria-label="Search courses and resources"
+                disabled={isSearching}
+              />
+              <button
+                type="submit"
+                disabled={!searchQuery.trim() || isSearching}
+                className="absolute inset-y-1 right-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm sm:text-base font-medium rounded-lg hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02]"
+              >
+                {isSearching ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                  />
+                ) : (
+                  'Search'
+                )}
+              </button>
+            </div>
+          </motion.form>
+
+          {/* Enhanced Feature Pills */}
+          <motion.div 
+            variants={itemVariants}
+            className="mt-4 sm:mt-6 flex flex-wrap justify-center gap-2 px-2 sm:px-0"
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
+                className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10 transition-all duration-200"
+              >
+                <Check className="w-3 h-3 text-green-400 mr-1" />
+                {feature}
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Enhanced CTA Buttons */}
+          <motion.div 
+            variants={itemVariants}
+            className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-2 sm:px-0"
+          >
+            <Link
+              to="/courses"
+              className="group inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg hover:shadow-2xl hover:-translate-y-1 transform transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-gray-900"
+            >
+              Explore Courses
+              <ArrowRight className="ml-2 -mr-1 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" aria-hidden="true" />
+            </Link>
+            <Link
+              to="/free-trial"
+              className="group inline-flex items-center justify-center px-6 py-3 sm:px-8 sm:py-4 border border-gray-600 text-sm sm:text-base font-medium rounded-xl text-white bg-transparent hover:bg-white/10 hover:border-gray-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-gray-900 backdrop-blur-sm"
+            >
+              <Play className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+              Start Free Trial
+            </Link>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {/* Stats */}
+      {/* Enhanced Stats Section */}
       <motion.div 
         ref={statsRef}
-        className={`relative ${isScrolled ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        className={`relative transition-all duration-500 ${
+          isScrolled ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
+        }`}
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
+          <div className="grid grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/5 hover:border-white/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-                initial={{ opacity: 0, y: 20 }}
-                animate={statsInView ? { opacity: 1, y: 0 } : {}}
+                className="group bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/5 hover:border-white/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl h-full text-center cursor-default"
+                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                animate={statsInView ? { opacity: 1, y: 0, scale: 1 } : {}}
                 transition={{ 
-                  duration: 0.6,
-                  delay: statsInView ? 0.1 * index : 0,
+                  duration: 0.8,
+                  delay: statsInView ? 0.15 * index : 0,
                   type: 'spring',
                   stiffness: 100,
-                  damping: 10
+                  damping: 12
                 }}
+                whileHover={{ scale: 1.05 }}
               >
-                <span className="absolute inset-0 flex items-center justify-center">
-                  <Play className="h-5 w-5 text-white" />
-                </span>
-                <div className="flex items-start">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/10 to-purple-500/10">
-                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-[10px] xs:text-xs sm:text-sm font-medium text-gray-400">{stat.label}</p>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-white mt-0.5 sm:mt-1">{stat.value}</p>
+                <div className="flex flex-col items-center">
+                  <motion.div 
+                    className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 mb-3 group-hover:from-blue-500/30 group-hover:to-purple-500/30 transition-all duration-300"
+                    whileHover={{ rotate: 5 }}
+                  >
+                    <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-blue-400 group-hover:text-blue-300 transition-colors duration-300" />
+                  </motion.div>
+                  <div>
+                    <p className="text-xs xs:text-sm font-medium text-gray-400 group-hover:text-gray-300 transition-colors duration-300">
+                      {stat.label}
+                    </p>
+                    <motion.p 
+                      className="text-base sm:text-lg md:text-2xl font-bold text-white mt-0.5 sm:mt-1"
+                      initial={{ scale: 0 }}
+                      animate={statsInView ? { scale: 1 } : {}}
+                      transition={{ delay: statsInView ? 0.3 + index * 0.1 : 0, type: 'spring' }}
+                    >
+                      {stat.value}
+                    </motion.p>
                   </div>
                 </div>
               </motion.div>
