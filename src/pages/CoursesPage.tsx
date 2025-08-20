@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Clock, Star, Users, ArrowRight } from 'lucide-react';
@@ -18,17 +19,52 @@ type Course = {
 const courses: Course[] = [
   {
     id: '1',
-    title: 'N/A',
-    description: 'N/A',
-    instructor: 'N/A',
+    title: 'Introduction to Physical Therapy',
+    description: 'Learn the fundamentals of physical therapy and rehabilitation techniques.',
+    instructor: 'Dr. Sarah Johnson',
     rating: 4.8,
     students: 1245,
     duration: '8 weeks',
     level: 'Beginner',
-    image: '/src/assets/courses/web-dev.jpg',
-    category: 'N/A'
+    image: 'https://source.unsplash.com/random/400x300/?physiotherapy',
+    category: 'Physical Therapy'
   },
-  
+  {
+    id: '2',
+    title: 'Advanced Rehabilitation Techniques',
+    description: 'Master advanced rehabilitation methods for sports injuries and post-surgery recovery.',
+    instructor: 'Dr. Michael Chen',
+    rating: 4.9,
+    students: 892,
+    duration: '10 weeks',
+    level: 'Advanced',
+    image: 'https://source.unsplash.com/random/400x300/?rehabilitation',
+    category: 'Rehabilitation'
+  },
+  {
+    id: '3',
+    title: 'Pain Management Fundamentals',
+    description: 'Understand and manage chronic pain through evidence-based physical therapy techniques.',
+    instructor: 'Dr. Emily Wilson',
+    rating: 4.7,
+    students: 1560,
+    duration: '6 weeks',
+    level: 'Intermediate',
+    image: 'https://source.unsplash.com/random/400x300/?pain,management',
+    category: 'Pain Management'
+  },
+  {
+    id: '4',
+    title: 'Pediatric Physical Therapy',
+    description: 'Specialized techniques for treating children with developmental disorders.',
+    instructor: 'Dr. Robert Taylor',
+    rating: 4.9,
+    students: 745,
+    duration: '8 weeks',
+    level: 'Intermediate',
+    image: 'https://source.unsplash.com/random/400x300/?pediatric,therapy',
+    category: 'Pediatrics'
+  }
 ];
 
 const CourseCard = ({ course }: { course: Course }) => (
@@ -41,10 +77,6 @@ const CourseCard = ({ course }: { course: Course }) => (
         src={course.image} 
         alt={course.title} 
         className="w-full h-full object-cover"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = `https://source.unsplash.com/random/400x300/?${course.category.split(' ').join(',')}`;
-        }}
       />
     </div>
     <div className="p-6">
@@ -57,15 +89,15 @@ const CourseCard = ({ course }: { course: Course }) => (
           <span className="ml-1 text-sm text-gray-700">{course.rating}</span>
         </div>
       </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 h-14">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">
         {course.title}
       </h3>
-      <p className="text-gray-600 text-sm mb-4 line-clamp-2 h-12">
+      <p className="text-gray-600 text-sm mb-4 h-16 line-clamp-3">
         {course.description}
       </p>
       <div className="flex items-center text-sm text-gray-500 mb-4">
         <Users className="w-4 h-4 mr-1" />
-        <span className="mr-4">{course.students.toLocaleString()}</span>
+        <span className="mr-4">{course.students.toLocaleString()} students</span>
         <Clock className="w-4 h-4 mr-1" />
         <span>{course.duration}</span>
       </div>
@@ -83,13 +115,21 @@ const CourseCard = ({ course }: { course: Course }) => (
 );
 
 export const CoursesPage = () => {
-  const categories = ['All', '', '', '', '', '', 'N/A'];
+  const categories = ['All', 'Physical Therapy', 'Rehabilitation', 'Pain Management', 'Pediatrics'];
   const levels = ['All Levels', 'Beginner', 'Intermediate', 'Advanced'];
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedLevel, setSelectedLevel] = useState('All Levels');
+
+  const filteredCourses = courses.filter(course => {
+    const matchesCategory = selectedCategory === 'All' || course.category === selectedCategory;
+    const matchesLevel = selectedLevel === 'All Levels' || course.level === selectedLevel;
+    return matchesCategory && matchesLevel;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-20">
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16 md:py-24">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -97,7 +137,7 @@ export const CoursesPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Explore Our Courses</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Professional Development Courses</h1>
             <p className="text-xl text-blue-100 mb-8">
               Discover a wide range of courses designed to help you master new skills and advance your career.
             </p>
@@ -116,40 +156,55 @@ export const CoursesPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         {/* Filters */}
-        <div className="mb-12">
-          <div className="flex flex-wrap gap-4 mb-6">
-            {categories.map((category) => (
-              <button
-                key={category}
-                className="px-4 py-2 rounded-full text-sm font-medium transition-colors"
-                style={{
-                  backgroundColor: category === 'All' ? '#2563eb' : '#f3f4f6',
-                  color: category === 'All' ? 'white' : '#4b5563',
-                }}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="w-full md:w-1/3">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <select
+                id="category"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
               >
-                {category}
-              </button>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-4">
-            {levels.map((level) => (
-              <button
-                key={level}
-                className="px-4 py-2 rounded-full text-sm font-medium bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full md:w-1/3">
+              <label htmlFor="level" className="block text-sm font-medium text-gray-700 mb-1">Level</label>
+              <select
+                id="level"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
               >
-                {level}
-              </button>
-            ))}
+                {levels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <h3 className="text-lg font-medium text-gray-900">No courses found</h3>
+              <p className="mt-2 text-gray-500">Try adjusting your filters to find what you're looking for.</p>
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
